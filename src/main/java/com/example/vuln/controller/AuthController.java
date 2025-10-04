@@ -29,62 +29,64 @@ public class AuthController {
     public AuthController(UserService userService) {
         this.userService = userService;
     }
-
-    // === [1] หน้า Login (GET) ===
-    @GetMapping({"/","/login"})
+    // === [1] หน้า Login (GET) — ไม่ยุ่ง session/ไม่ส่งคุกกี้ ===
+    @GetMapping({"/", "/login"})
     public String loginPage(@RequestParam(value = "error", required = false) String error,
                             Model model,
-                            HttpServletResponse response,
-                            HttpSession session) {
-
-        // ออกคุกกี้ custom ตอนเข้าหน้า login เพื่อโชว์ Set-Cookie หลายตัว
-        Cookie demo = new Cookie("demo_cookie", "landing");
-        demo.setPath("/");
-        demo.setHttpOnly(true);
-        demo.setSecure(false); // ใช้ HTTPS ค่อยตั้ง true
-        demo.setMaxAge(900);
-        response.addCookie(demo);
-
+                            HttpServletRequest request) {
+        // ห้ามรับ HttpSession/HttpServletResponse ที่นี่
+        // ป้องกันการสร้าง JSESSIONID โดยไม่ตั้งใจ
         if (error != null) model.addAttribute("loginError", true);
-        return "login"; // -> templates/login.html
+
+        // ถ้ามี session อยู่แล้วและล็อกอินแล้ว จะเด้งเข้าหน้า dashboard เลย (ทางเลือก)
+        HttpSession existing = request.getSession(false);
+        if (existing != null && existing.getAttribute("user") != null) {
+            return "redirect:/dashboard";
+        }
+
+        return "login";
     }
 
-    // === [2] ทำ Login (POST) ===
+    // === [2] ทำ Login (POST) — สร้าง session/ส่งคุกกี้เฉพาะกรณีสำเร็จ ===
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String login(@RequestParam("username") String username,
                         @RequestParam("password") String password,
                         HttpServletRequest request,
                         HttpServletResponse response,
-                        HttpSession session,
                         Model model) {
 
         String ua = request.getHeader("User-Agent");
         String clientIp = request.getRemoteAddr();
-
         logger.info("User-Agent: {}", ua);
         logger.info("Client IP: {}", clientIp);
 
+        // อย่าสร้าง session ตรงนี้ถ้ายังไม่ auth ผ่าน
+        // ถ้ามี session ค้าง (เช่นจากที่อื่น) ก็ยังไม่แตะ
         return userService.findByUsername(username)
             .filter(u -> userService.verifyPassword(password, u.getPasswordHash()))
             .map(u -> {
-                // ผูก session -> ทำให้ JSESSIONID ถูกใช้งานแน่
+                // ✅ auth ผ่าน ค่อย "สร้าง" session และ set attribute
+                HttpSession session = request.getSession(true); // <— สร้างตอนนี้เท่านั้น
                 session.setAttribute("user", u.getUsername());
 
-                // ออกคุกกี้ custom อีกตัว เพื่อเห็น Set-Cookie สองบรรทัด
+                // ✅ ค่อย "ส่งคุกกี้" ณ ตอนนี้เท่านั้น
                 Cookie stage = new Cookie("login_stage", "ok");
                 stage.setPath("/");
                 stage.setHttpOnly(true);
-                stage.setSecure(false);
+                stage.setSecure(false);      // เปิด HTTPS จริง ค่อยใส่ true
+                stage.setMaxAge(900);
                 response.addCookie(stage);
-
+                
                 logger.info("Successful login for user: {}", username);
                 return "redirect:/dashboard";
             })
             .orElseGet(() -> {
                 logger.warn("Failed login attempt for user: {}", username);
+                // ❌ auth ไม่ผ่าน: ไม่สร้าง session ไม่ addCookie ใด ๆ เลย
                 return "redirect:/login?error=1";
             });
     }
+
 
     // === [3] หน้า Dashboard (ต้องล็อกอินถึงดูได้) ===
     @GetMapping("/dashboard")
