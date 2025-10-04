@@ -23,11 +23,19 @@ public class UploadController {
                                        @RequestPart("file") MultipartFile file) {
         try {
             List<String> saved = service.handleZipUpload(productId, file);
-            return ResponseEntity.ok(Map.of("savedFiles", saved));
+
+            // ==== Java 8 way (no Map.of) ====
+            Map<String, Object> body = new HashMap<String, Object>();
+            body.put("savedFiles", saved);
+            return ResponseEntity.ok(body);
+
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            // Collections.singletonMap works fine on Java 8
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("error", e.getMessage()));
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(500)
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 }
