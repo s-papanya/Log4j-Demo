@@ -59,6 +59,7 @@ public class AuthController {
         String clientIp = request.getRemoteAddr();
         logger.info("User-Agent: {}", ua);
         logger.info("Client IP: {}", clientIp);
+        logger.info("Login attempt for user: {}", username);
 
         // อย่าสร้าง session ตรงนี้ถ้ายังไม่ auth ผ่าน
         // ถ้ามี session ค้าง (เช่นจากที่อื่น) ก็ยังไม่แตะ
@@ -118,6 +119,7 @@ public class AuthController {
         String clientIp = request.getRemoteAddr();
 
         logger.info("Signup request UA={}, IP={}", ua, clientIp);
+        logger.info("Signup attempt for user: {}, email: {}", form.getUsername(), form.getEmail());
 
         try {
             UserAccount u = userService.register(form);
