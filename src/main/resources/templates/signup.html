@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>Sign up</title></head>
+<body>
+  <h2>Sign up</h2>
+
+  <div th:if="${signupError}">
+    <span th:switch="${signupError}">
+      <span th:case="'username_taken'">❌ Username is already taken.</span>
+      <span th:case="'email_taken'">❌ Email is already registered.</span>
+      <span th:case="*">❌ Signup error.</span>
+    </span>
+  </div>
+
+  <form method="post" action="/signup" th:object="${signupForm}">
+    <label>Username <input th:field="*{username}" required minlength="3" maxlength="32"></label><br>
+    <label>Email <input th:field="*{email}" required type="email"></label><br>
+    <label>Password <input th:field="*{password}" type="password" required minlength="6" maxlength="72"></label><br>
+    <button type="submit">Create account</button>
+  </form>
+
+  <p>Have an account? <a href="/login">Login</a></p>
+</body>
+</html>
