@@ -1,9 +1,128 @@
 <!doctype html>
-<html>
-<head><meta charset="utf-8"><title>Dashboard</title></head>
+<html lang="th" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- ใช้ธีมเดียวกับหน้า login/register -->
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
 <body>
-  <h1>Welcome [[${user}]] 🎉</h1>
-  <p>นี่คือหน้าหลังล็อกอิน เอาไว้เดโม Set-Cookie/JSESSIONID และ log behavior ได้</p>
-  <a href="/logout">Logout</a>
+  <!-- Top Bar -->
+  <header class="dash-header">
+    <div class="dash-header__left">
+      <i class='bx bxs-shield dash-logo'></i>
+      <span class="dash-title">FinanceSecure</span>
+    </div>
+    <div class="dash-header__right">
+      <div class="dash-user">
+        <i class='bx bxs-user-circle'></i>
+        <span th:text="${user}">Guest</span>
+      </div>
+      <a href="/logout" class="btn dash-logout">Logout</a>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="dash-wrap">
+    <!-- Welcome / Status -->
+    <section class="dash-hero card glass">
+      <div>
+        <h1>Welcome, <span th:text="${user}">Guest</span> 🎉</h1>
+        <p class="muted">นี่คือหน้าหลังล็อกอิน สำหรับเดโม session/JSESSIONID และพฤติกรรมการ log</p>
+      </div>
+      <div class="dash-hero__badges">
+        <span class="pill ok"><i class='bx bxs-check-shield'></i> Status: OK</span>
+        <span class="pill info"><i class='bx bxs-tachometer'></i> p95 &lt; 150ms</span>
+        <span class="pill warn"><i class='bx bxs-bell-ring'></i> 1 pending alert</span>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="dash-grid">
+      <div class="card kpi">
+        <div class="kpi-icon"><i class='bx bxs-wallet'></i></div>
+        <div>
+          <div class="kpi-label">Balance</div>
+          <div class="kpi-value">฿ 25,420.00</div>
+        </div>
+      </div>
+
+      <div class="card kpi">
+        <div class="kpi-icon"><i class='bx bxs-key'></i></div>
+        <div>
+          <div class="kpi-label">Auth</div>
+          <div class="kpi-value">2FA Enabled</div>
+        </div>
+      </div>
+
+      <div class="card kpi">
+        <div class="kpi-icon"><i class='bx bxs-bug'></i></div>
+        <div>
+          <div class="kpi-label">Security</div>
+          <div class="kpi-value">No issues</div>
+        </div>
+      </div>
+
+      <div class="card kpi">
+        <div class="kpi-icon"><i class='bx bxs-data'></i></div>
+        <div>
+          <div class="kpi-label">Storage</div>
+          <div class="kpi-value">38% used</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Actions + Recent -->
+    <section class="dash-two-col">
+      <div class="card">
+        <h3 class="card-title">Quick Actions</h3>
+        <div class="actions">
+          <a href="/upload.html" class="btn action"><i class='bx bxs-cloud-upload'></i> Upload ZIP</a>
+          <a href="/profile" class="btn action alt"><i class='bx bxs-user-detail'></i> Profile</a>
+          <a href="/settings" class="btn action alt2"><i class='bx bxs-cog'></i> Settings</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Recent Activity</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Event</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>วันนี้ 10:21</td>
+                <td>Login from Chrome</td>
+                <td><span class="status ok">Success</span></td>
+              </tr>
+              <tr>
+                <td>วันนี้ 09:58</td>
+                <td>Upload images (ZIP)</td>
+                <td><span class="status ok">Processed</span></td>
+              </tr>
+              <tr>
+                <td>เมื่อวาน</td>
+                <td>Change password</td>
+                <td><span class="status warn">Pending</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="dash-footer">
+    <span>© 2025 FinanceSecure Demo</span>
+    <span class="muted">Theme matched with Login/Register</span>
+  </footer>
 </body>
 </html>
