@@ -12,10 +12,4 @@ public class PageController {
     public String uploadPage() {
         return "upload"; // ชื่อไฟล์ใน templates = upload.html
     }
-
-    // (ทางเลือก) ทำเป็นโฮมเพจ
-    @GetMapping("/")
-    public String home() {
-        return "upload";
-    }
 }

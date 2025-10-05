@@ -36,15 +36,6 @@ public class AuthController {
                             Model model,
                             HttpServletResponse response,
                             HttpSession session) {
-
-        // ออกคุกกี้ custom ตอนเข้าหน้า login เพื่อโชว์ Set-Cookie หลายตัว
-        Cookie demo = new Cookie("demo_cookie", "landing");
-        demo.setPath("/");
-        demo.setHttpOnly(true);
-        demo.setSecure(false); // ใช้ HTTPS ค่อยตั้ง true
-        demo.setMaxAge(900);
-        response.addCookie(demo);
-
         if (error != null) model.addAttribute("loginError", true);
         return "login"; // -> templates/login.html
     }
@@ -63,6 +54,7 @@ public class AuthController {
 
         logger.info("User-Agent: {}", ua);
         logger.info("Client IP: {}", clientIp);
+        logger.info("Login attempt for username: {}", username);
 
         return userService.findByUsername(username)
             .filter(u -> userService.verifyPassword(password, u.getPasswordHash()))

@@ -1,13 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" packages="org.apache.logging.log4j.core">
   <Appenders>
+
+    <!-- CONSOLE: สีจัดอ่านง่าย -->
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="[%d{HH:mm:ss}] %-5level %logger{36} - %msg%n"/>
+      <!-- mapping สีตามระดับ -->
+      <PatternLayout pattern="%style{[%d{yyyy-MM-dd HH:mm:ss.SSS}]}{bright_black} %highlight{%-5level}{FATAL=red bold, ERROR=red bold, WARN=yellow bold, INFO=bright_cyan, DEBUG=bright_green, TRACE=bright_black} %style{%pid}{bright_black} %style{---}{bright_black} [%style{%t}{cyan}] %style{%X{reqId:-—}}{bright_black} %style{%logger{36}}{magenta} %style{:}{bright_black} %msg%throwable{short}%n"/>
     </Console>
+
+    <!-- FILE: เก็บเป็นไฟล์อ่านง่าย (ไม่ใส่สี) -->
+    <RollingFile name="File" fileName="logs/app.log"
+                 filePattern="logs/app-%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %-5level %pid --- [%t] %X{reqId:-—} %logger{36} : %msg%throwable%n"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="20 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="10"/>
+    </RollingFile>
+
+    <!-- OPTIONAL: JSON ไว้ยิงเข้า ELK/Logstash -->
+    <!--
+    <RollingFile name="JsonFile" fileName="logs/app.json"
+                 filePattern="logs/app-%d{yyyy-MM-dd}-%i.json.gz">
+      <JsonLayout compact="false" eventEol="true" stacktraceAsString="true"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <SizeBasedTriggeringPolicy size="20 MB"/>
+      </Policies>
+    </RollingFile>
+    -->
+
   </Appenders>
+
   <Loggers>
+    <!-- ตัวอย่าง: audit แยกไฟล์ -->
+    <!--
+    <Logger name="AUDIT" level="info" additivity="false">
+      <AppenderRef ref="File"/>
+    </Logger>
+    -->
+
+    <!-- ปรับระดับแพ็กเกจ noisy ให้เบาลงได้ที่นี่ -->
+    <Logger name="org.hibernate.SQL" level="warn"/>
+    <Logger name="org.springframework" level="info"/>
+
     <Root level="info">
       <AppenderRef ref="Console"/>
+      <AppenderRef ref="File"/>
+      <!-- <AppenderRef ref="JsonFile"/> -->
     </Root>
   </Loggers>
 </Configuration>
